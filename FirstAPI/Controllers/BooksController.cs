@@ -1,5 +1,6 @@
 ﻿using FirstAPI.Managers;
 using FirstAPI.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -12,25 +13,33 @@ using System.Threading.Tasks;
 
 namespace FirstAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [EnableCors(Startup.AllowOnlyGetCorsPolicy)]
+    [Route("mitsuperapi/books")]
     [ApiController]
     public class BooksController : ControllerBase
     {
         private static readonly string BookCache = "books";
         private readonly IMemoryCache _memoryCache;
-        private BooksManager _manager = new BooksManager();
+        private IBooksManager _manager;
 
-        public BooksController(IMemoryCache memoryCache)
+        public BooksController(IMemoryCache memoryCache, BookDbContext context)
         {
             _memoryCache = memoryCache;
+
+            //_manager = new BooksManager();
+            _manager = new BookDbManager(context);
         }
 
+        [EnableCors(Startup.AllowAllCorsPolicy)]
         // GET: api/Books?test=1&filterString=networks
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
-        public ActionResult<IEnumerable<Book>> Get([FromQuery] string filterString, [FromQuery] int? minimumPrice)
+        public ActionResult<IEnumerable<Book>> Get([FromQuery] string filterString, [FromQuery] int? minimumPrice, [FromHeader] string testheader)
         {
+            //string testHeader = Request.Headers["testheader"];
+            Response.Headers.Add("test-header-response", testheader);
+
             IEnumerable<Book> books = null;
 
             //if (_memoryCache.TryGetValue(BookCache, out books))
@@ -42,31 +51,45 @@ namespace FirstAPI.Controllers
 
             //var cacheOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
             //_memoryCache.Set(BookCache, books, cacheOptions);
-
             if (books.Count() <= 0)
             {
                 return NotFound();
-            } else
+            }
+            else
             {
                 return Ok(books);
             }
         }
 
+        [HttpGet("authers/{autherId}/books/{bookid}")]
+        public void test(int autherId, int bookid)
+        {
+
+        }
+
         [ResponseCache(Duration = 30, Location = ResponseCacheLocation.Any, NoStore = false)]
-        // GET api/<BooksController>/5
+        // GET https://hostt/api/books/1
         [HttpGet("{id}")]
         public Book Get(int id)
         {
             return _manager.GetByID(id);
         }
 
+        /// <summary>
+        /// Opretter et object og sender object plus URI tilbage
+        /// </summary>
+        /// <param name="newBook"></param>
+        /// <returns></returns>
         // POST api/<BooksController>
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [HttpPost]
-        public Book Post([FromBody] Book newBook)
+        public ActionResult<Book> Post([FromBody] Book newBook)
         {
-            return _manager.AddBook(newBook);
+            Book createdBook = _manager.AddBook(newBook);
+            return Created("/api/books/" + createdBook.ID, createdBook);
         }
 
+        [ApiExplorerSettings(GroupName = "v2")]
         // PUT api/<BooksController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)

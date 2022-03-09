@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FirstAPI.Managers
 {
-    public class BooksManager
+    public class BooksManager : IBooksManager
     {
         private static int nextID = 1;
         private static List<Book> data = new List<Book>()
@@ -15,8 +15,7 @@ namespace FirstAPI.Managers
             new Book() {ID = nextID++, Title = "Not Computer Networks", Price=500},
             new Book() {ID = nextID++, Title = "Complitely different book", Price=10}
         };
-
-        public List<Book> GetAll(string filterString, int? minimumPrice)
+        public IEnumerable<Book> GetAll(string filterString, int? minimumPrice)
         {
             List<Book> result = new List<Book>(data);
             if (!string.IsNullOrWhiteSpace(filterString))

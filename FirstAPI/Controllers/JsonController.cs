@@ -12,16 +12,22 @@ namespace FirstAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v2")]
     public class JsonController : ControllerBase
     {
         // GET: api/<JsonController>
         [HttpGet]
-        public string Get()
+        public string Get([FromHeader] string myCustomHeader)
         {
-            Book myBook = new Book() { ID = 2, Price = 5, Title = "Wee god bog" };
-            string outerJson = "{\"book\":\"" + JsonSerializer.Serialize(myBook).Replace("\"","\\\"") + "\"}";
-            JsonSerializer.Deserialize<Book>("{\\\"ID\\\":2,\\\"Title\\\":\\\"Wee god bog\\\",\\\"Price\\\":5}");
-            return outerJson;
+            string headerValue = Request.Headers["myRequestHeader"];
+            Response.Headers.Add("myResponseHeader", headerValue);
+            Response.Headers.Add("test2resp", myCustomHeader);
+
+            if (!string.IsNullOrWhiteSpace(headerValue))
+            {
+                return headerValue;
+            }
+            return "some Json";
         }
 
         // POST api/<JsonController>

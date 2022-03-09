@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FirstAPI</name>
+    </assembly>
+    <members>
+        <member name="M:FirstAPI.Controllers.BooksController.Post(FirstAPI.Models.Book)">
+            <summary>
+            Opretter et object og sender object plus URI tilbage
+            </summary>
+            <param name="newBook"></param>
+            <returns></returns>
+        </member>
+        <member name="P:FirstAPI.Models.Book.ID">
+            <summary>
+            Det ID vi bruger
+            </summary>
+        </member>
+    </members>
+</doc>
