@@ -11,11 +11,11 @@ namespace FirstAPI.Managers
         private static int nextID = 1;
         private static List<Book> data = new List<Book>()
         {
-            new Book() {ID = nextID++, Title = "Computer Networks", Price=800},
+            new Book() {ID = nextID++, Title = "Computer Networks", Price=300},
             new Book() {ID = nextID++, Title = "Not Computer Networks", Price=500},
             new Book() {ID = nextID++, Title = "Complitely different book", Price=10}
         };
-        public IEnumerable<Book> GetAll(string filterString, int? minimumPrice)
+        public IEnumerable<Book> GetAll(string filterString, int? minimumPrice, string sortBy)
         {
             List<Book> result = new List<Book>(data);
             if (!string.IsNullOrWhiteSpace(filterString))
@@ -27,6 +27,10 @@ namespace FirstAPI.Managers
             {
                 result = result.FindAll(c => c.Price >= minimumPrice);
             }
+
+            //result = result.OrderBy(x => x.Title).ToList();
+            result.Sort(new Book.GenericComparer(sortBy));
+
             return result;
         }
 

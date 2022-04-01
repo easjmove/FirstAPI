@@ -26,8 +26,8 @@ namespace FirstAPI.Controllers
         {
             _memoryCache = memoryCache;
 
-            //_manager = new BooksManager();
-            _manager = new BookDbManager(context);
+            _manager = new BooksManager();
+            //_manager = new BookDbManager(context);
         }
 
         [EnableCors(Startup.AllowAllCorsPolicy)]
@@ -35,7 +35,7 @@ namespace FirstAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
-        public ActionResult<IEnumerable<Book>> Get([FromQuery] string filterString, [FromQuery] int? minimumPrice, [FromHeader] string testheader)
+        public ActionResult<IEnumerable<Book>> Get([FromQuery] string filterString, [FromQuery] int? minimumPrice, [FromHeader] string testheader, [FromQuery] string sortBy)
         {
             //string testHeader = Request.Headers["testheader"];
             Response.Headers.Add("test-header-response", testheader);
@@ -47,7 +47,7 @@ namespace FirstAPI.Controllers
             //    return books;
             //}
 
-            books = _manager.GetAll(filterString, minimumPrice);
+            books = _manager.GetAll(filterString, minimumPrice, sortBy);
 
             //var cacheOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
             //_memoryCache.Set(BookCache, books, cacheOptions);
@@ -61,7 +61,12 @@ namespace FirstAPI.Controllers
             }
         }
 
-        [HttpGet("authers/{autherId}/books/{bookid}")]
+        [HttpGet("titlesort")]
+        public ActionResult<IEnumerable<Book>> Get()
+        {
+        }
+
+            [HttpGet("authers/{autherId}/books/{bookid}")]
         public void test(int autherId, int bookid)
         {
 
